@@ -28,10 +28,10 @@
                 <div class="mb-3">
                     <label class="form-label">Password</label>
                     <div class="input-group input-group-flat">
-                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password"
+                        <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password"
                                autocomplete="off">
                         <span class="input-group-text">
-                  <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+                  <a id="togglePassword" class="link-secondary" title="Show password" data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                          stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                          stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12"
@@ -49,10 +49,10 @@
                 <div class="mb-3">
                     <label class="form-label">Confirm Password</label>
                     <div class="input-group input-group-flat">
-                        <input type="password" name="password_confirmation" class="form-control @error('password_confirmation') is-invalid @enderror" placeholder="Password"
+                        <input type="password" id="passwordConfirmation" name="password_confirmation" class="form-control @error('password_confirmation') is-invalid @enderror" placeholder="Password"
                                autocomplete="off">
                         <span class="input-group-text">
-                  <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+                  <a id="toggleConfirmPassword" class="link-secondary" title="Show password" data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                          stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                          stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12"
@@ -81,4 +81,92 @@
             Already have account? <a href="{{route('login')}}" tabindex="-1">Sign in</a>
         </div>
     </div>
+     @if (session('error'))
+<div class="modal modal-blur fade show" id="errorModal" tabindex="-1" style="display: block;" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-header">
+                <h5 class="modal-title">We're sorry…</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 9v2m0 4h.01"></path>
+                    <path d="M12 5a7 7 0 1 1 0 14a7 7 0 0 1 0 -14"></path>
+                </svg>
+                <div class="text-muted">
+                    {{ session('error') }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger w-100" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Overlay backdrop --}}
+<div class="modal-backdrop fade show"></div>
+@endif
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        
+        const modal = document.getElementById('errorModal');
+        const backdrop = document.querySelector('.modal-backdrop');
+
+        
+        const closeButtons = modal.querySelectorAll('[data-bs-dismiss="modal"]');
+
+        
+        function closeModal() {
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+            backdrop?.remove(); 
+        }
+
+        
+        closeButtons.forEach(button => {
+            button.addEventListener('click', closeModal);
+        });
+    });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
+
+    const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+    const confirmPasswordInput = document.getElementById("passwordConfirmation");
+
+    function toggleVisibility(toggleBtn, inputField) {
+      const isHidden = inputField.type === "password";
+      inputField.type = isHidden ? "text" : "password";
+      toggleBtn.setAttribute("title", isHidden ? "Hide password" : "Show password");
+
+      const tooltip = bootstrap.Tooltip.getInstance(toggleBtn);
+      if (tooltip) tooltip.setContent({ '.tooltip-inner': toggleBtn.getAttribute("title") });
+    }
+
+    togglePassword.addEventListener("click", function (e) {
+      e.preventDefault();
+      toggleVisibility(togglePassword, passwordInput);
+    });
+
+    toggleConfirmPassword.addEventListener("click", function (e) {
+      e.preventDefault();
+      toggleVisibility(toggleConfirmPassword, confirmPasswordInput);
+    });
+
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (el) {
+      return new bootstrap.Tooltip(el);
+    });
+  });
+</script>
+
+
+
 @endsection

@@ -18,6 +18,11 @@
 @show
 
 @section('tablar_js')
+    <script 
+  src="https://widgets.leadconnectorhq.com/loader.js"  
+  data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js" 
+ data-widget-id="67e1ded91464712e761cdb98"   > 
+ </script>
     @stack('js')
     @yield('js')
 @stop

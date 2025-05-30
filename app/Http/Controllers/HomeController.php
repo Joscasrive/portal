@@ -191,7 +191,7 @@ if (isset($data['email']['message'])) {
 }
 
 
-if (empty($data['contact'])) {
+if (empty($data['contacts'])) {
     return redirect()->back()->with('error', 'No contact was found with that email.');
 }
 

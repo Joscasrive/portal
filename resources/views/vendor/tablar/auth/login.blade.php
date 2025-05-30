@@ -29,12 +29,12 @@
                   </span>
                         </label>
                         <div class="input-group input-group-flat">
-                            <input type="password" name="password"
+                            <input type="password" id="password" name="password"
                                    class="form-control @error('password') is-invalid @enderror"
                                    placeholder="Your password"
                                    autocomplete="off">
                             <span class="input-group-text">
-                    <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+                    <a id="togglePassword" class="link-secondary" title="Show password" data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                            stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12"
@@ -93,4 +93,23 @@
             </div>
         @endif
     </div>
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toggle = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
+
+    toggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      const isHidden = passwordInput.type === "password";
+      passwordInput.type = isHidden ? "text" : "password";
+
+      
+      toggle.setAttribute("title", isHidden ? "Hide password" : "Show password");
+
+      
+      const tooltip = bootstrap.Tooltip.getInstance(toggle);
+      if (tooltip) tooltip.setContent({ '.tooltip-inner': toggle.getAttribute("title") });
+    });
+  });
+</script>
 @endsection
