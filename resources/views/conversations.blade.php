@@ -99,7 +99,7 @@
         </svg>
     </div>
     <div>
-        <h4 class="alert-heading">¡Éxito!</h4>
+        <h4 class="alert-heading">Success!</h4>
         <div class="alert-description">
             {{ session('success') }}
         </div>

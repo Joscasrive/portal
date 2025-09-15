@@ -17,8 +17,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('phone');
+            $table->string('company')->nullable();
+            $table->boolean('is_commissionable')->default(false);
+            $table->decimal('commission_percentage', 5, 2)->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->foreignId('referrer_id')->nullable()->constrained('users')->onDelete('set null');
+           
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

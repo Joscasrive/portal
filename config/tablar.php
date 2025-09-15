@@ -155,10 +155,18 @@ return [
             'url' => '/customers'
         ],
         [
-            'text' => 'Requests',
-            'icon' => 'ti ti-message',
-            'url' => '/conversations'
-        ],
+    'text' => 'Referred',
+    'icon' => 'ti ti-password-user',
+    'url' => '/partners/users/create',
+    'can' =>'see-user' 
+],
+[
+    'text' => 'Users',
+    'icon' => 'ti ti-user',
+    'url' => '/users',
+    'can' => ['edit-user', 'delete-user'], 
+],
+       
 
         
 
