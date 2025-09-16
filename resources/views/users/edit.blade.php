@@ -1,7 +1,6 @@
 @extends('tablar::page')
 
 @section('content')
-    <!-- Page header -->
     <div class="page-header d-print-none">
         <div class="container-xl">
             <div class="row g-2 align-items-center">
@@ -13,7 +12,6 @@
             </div>
         </div>
     </div>
-    <!-- Page body -->
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-deck row-cards">
@@ -91,13 +89,30 @@
                                 </div>
                                 <div class="row" id="commissionPercentageGroup" style="{{ old('is_commissionable', $user->is_commissionable) ? '' : 'display:none;' }}">
                                     <div class="col-12 mb-3">
-                                        <label class="form-label" for="commission_percentage">Commission Percentage</label>
+                                        <label class="form-label" for="commission_percentage">Commission Amount</label>
                                         <input type="number" step="0.01" name="commission_percentage" id="commission_percentage" class="form-control @error('commission_percentage') is-invalid @enderror" value="{{ old('commission_percentage', $user->commission_percentage) }}">
                                         @error('commission_percentage')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
+                                
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <h4>User Permissions</h4>
+                                        <div class="mb-3">
+                                            @foreach ($permissionsToShow as $permissionName)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="{{ Str::slug($permissionName) }}_permission" name="permissions[]" value="{{ $permissionName }}" {{ in_array($permissionName, $userPermissions) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="{{ Str::slug($permissionName) }}_permission">
+                                                        {{ ucwords(str_replace('-', ' ', $permissionName)) }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="mt-4">
                                     <button type="submit" class="btn btn-primary me-2">Update User</button>
                                     <a href="{{ route('users.index') }}" class="btn btn-secondary">Cancel</a>
@@ -124,4 +139,14 @@
             });
         });
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const phoneInput = document.getElementById('phone');
+
+        phoneInput.addEventListener('input', function (e) {
+            const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+    });
+</script>
 @endsection

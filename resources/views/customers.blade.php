@@ -68,7 +68,7 @@
         </div>
     @endif
 
-    {{-- Seccion de comision agregada --}}
+   
     @if(auth()->check() && auth()->user()->is_commissionable)
         <div class="page-body">
             <div class="container-xl">
@@ -79,7 +79,7 @@
                         </div>
                         <div>
                             <h4 class="alert-title">Your Commission Percentage</h4>
-                            <div class="text-muted">Your current commission percentage is <strong>{{ auth()->user()->commission_percentage ?? 0 }}%</strong>.</div>
+                            <div class="text-muted">Your current commission amount is <strong>${{ auth()->user()->commission_percentage ?? 0 }}</strong>.</div>
                         </div>
                     </div>
                 </div>

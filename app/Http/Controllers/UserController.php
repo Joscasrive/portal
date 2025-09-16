@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log; 
+use Exception; 
 
 class UserController extends Controller
 {
@@ -17,7 +21,6 @@ class UserController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-       
     }
     
     /**
@@ -41,7 +44,9 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::pluck('name', 'name')->all();
-        return view('users.create', compact('roles'));
+        // Obtiene todos los permisos para el formulario de creación
+        $permissions = Permission::pluck('name', 'name')->all();
+        return view('users.create', compact('roles', 'permissions'));
     }
 
     /**
@@ -50,19 +55,23 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+     public function store(Request $request)
     {
+        // Validación de datos del usuario
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'phone' => 'required|string|max:255',
+           'phone' => 'required|string|max:255',
             'company' => 'nullable|string|max:255',
             'is_commissionable' => 'nullable|boolean',
             'commission_percentage' => 'required_if:is_commissionable,true|nullable|numeric|between:0,100',
             'roles' => 'required',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string',
         ]);
 
+        // Creación del usuario en tu base de datos
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -73,11 +82,59 @@ class UserController extends Controller
             'commission_percentage' => $request->input('commission_percentage'),
         ]);
 
+        // Asignar rol y permisos al usuario
         $user->assignRole($request->input('roles'));
+        $user->syncPermissions($request->input('permissions', []));
 
+        // Solo procesar en HighLevel si el usuario tiene el rol 'partner'
+        if ($user->hasRole('partner')) {
+            // Preparar datos para HighLevel
+            $highLevelApiKey = env('MY_APP_ONE');
+            $nameParts = explode(' ', $request->name, 2);
+            $firstName = $nameParts[0];
+            $lastName = count($nameParts) > 1 ? $nameParts[1] : '';
+
+            // Buscar el contacto en HighLevel por email
+            try {
+                $lookupResponse = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $highLevelApiKey,
+                ])->get('https://rest.gohighlevel.com/v1/contacts/lookup', ['email' => $request->email]);
+
+                $lookupData = $lookupResponse->json();
+
+                if ($lookupResponse->successful() && !empty($lookupData['contacts'])) {
+                    // El contacto ya existe, solo le agregamos la etiqueta
+                    $contactId = $lookupData['contacts'][0]['id'];
+                    Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $highLevelApiKey,
+                        'Content-Type' => 'application/json',
+                    ])->post("https://rest.gohighlevel.com/v1/contacts/{$contactId}/tags/", [
+                        'tags' => ['partner']
+                    ]);
+                } else {
+                    // El contacto no existe, lo creamos
+                    $newContactData = [
+                        'firstName' => $firstName,
+                        'lastName' => $lastName,
+                        'name' => $request->name,
+                        'email' => $request->email,
+                        'phone' => $request->phone,
+                        'companyName' => $request->company,
+                        'tags' => ['partner'],
+                    ];
+                    Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $highLevelApiKey,
+                        'Content-Type' => 'application/json',
+                    ])->post('https://rest.gohighlevel.com/v1/contacts/', $newContactData);
+                }
+            } catch (Exception $e) {
+                Log::error('HighLevel API operation failed: ' . $e->getMessage());
+            }
+        }
+
+        // Redirección con mensaje de éxito
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
-
     /**
      * Muestra los detalles de un usuario específico.
      *
@@ -100,7 +157,19 @@ class UserController extends Controller
     {
         $roles = Role::pluck('name', 'name')->all();
         $userRole = $user->roles->pluck('name', 'name')->all();
-        return view('users.edit', compact('user', 'roles', 'userRole'));
+
+       
+        $permissionsToShow = [
+            'view company',
+            'view email',
+            'view phone',
+            'view total referred users'
+        ];
+
+        
+        $userPermissions = $user->getDirectPermissions()->pluck('name')->all();
+
+        return view('users.edit', compact('user', 'roles', 'userRole', 'permissionsToShow', 'userPermissions'));
     }
 
     /**
@@ -121,6 +190,8 @@ class UserController extends Controller
                 'is_commissionable' => 'nullable|boolean',
                 'commission_percentage' => 'required_if:is_commissionable,true|nullable|numeric|between:0,100',
                 'roles' => 'required',
+                'permissions' => 'nullable|array', 
+                'permissions.*' => 'string', 
             ]);
 
             $user->update([
@@ -131,7 +202,10 @@ class UserController extends Controller
                 'is_commissionable' => $request->has('is_commissionable'),
                 'commission_percentage' => $request->input('commission_percentage'),
             ]);
+            
+            // Sincroniza los roles y permisos del usuario
             $user->syncRoles($request->input('roles'));
+            $user->syncPermissions($request->input('permissions', []));
 
             return redirect()->route('users.index')->with('success', 'User successfully updated.');
         } catch (\Exception $e) {
