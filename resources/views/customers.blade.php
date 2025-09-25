@@ -172,7 +172,7 @@
                                                    aria-label="Select invoice">
                                         </td>
                                         <td><span class="text-muted">{{ str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}</span></td>
-                                        <td><a href="#" class="text-reset"
+                                        <td><a href="{{ route('reporting', $contacto['id'])}}" class="text-reset"
                                                tabindex="-1">{{  ucwords(strtolower($contacto['contactName']))  ?? '—' }}</a>
                                         </td>
                                         <td>{{ $contacto['email'] ?? '—' }}</td>

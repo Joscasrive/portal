@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PartnerUserController; 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ReportingController;
 use App\Http\Controllers\UserController;
 
 // Rutas de autenticación
@@ -26,5 +27,8 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/partners/users/create', [PartnerUserController::class, 'create'])->name('partners.users.create');
     Route::post('/partners/users', [PartnerUserController::class, 'store'])->name('partners.users.store');
+    Route::delete('/partners/users/{user}', [PartnerUserController::class, 'destroy'])->name('partners.users.destroy');
+    Route::get('/partners/users/{email}', [PartnerUserController::class, 'show'])->name('partners.users.show');
+    Route::get('/reporting/{id}', [ReportingController::class, 'index'])->name('reporting');
 });
 

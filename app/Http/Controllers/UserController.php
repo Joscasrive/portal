@@ -62,7 +62,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-           'phone' => 'required|string|max:255',
+           'phone' => 'required|string|max:255|unique:users',
             'company' => 'nullable|string|max:255',
             'is_commissionable' => 'nullable|boolean',
             'commission_percentage' => 'required_if:is_commissionable,true|nullable|numeric|between:0,100',
@@ -185,7 +185,8 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-                'phone' => 'required|string|max:255',
+                'phone' => 'required|string|max:255|unique:users,phone,' . $user->id,
+                'password' => 'nullable|string|min:8|confirmed',
                 'company' => 'nullable|string|max:255',
                 'is_commissionable' => 'nullable|boolean',
                 'commission_percentage' => 'required_if:is_commissionable,true|nullable|numeric|between:0,100',
@@ -194,14 +195,22 @@ class UserController extends Controller
                 'permissions.*' => 'string', 
             ]);
 
-            $user->update([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'company' => $request->company,
-                'is_commissionable' => $request->has('is_commissionable'),
-                'commission_percentage' => $request->input('commission_percentage'),
-            ]);
+           $userData = [
+    'name' => $request->name,
+    'email' => $request->email,
+    'phone' => $request->phone,
+    'company' => $request->company,
+    'is_commissionable' => $request->has('is_commissionable'),
+    'commission_percentage' => $request->input('commission_percentage'),
+];
+
+// Solo actualiza la contraseña si se ha proporcionado una nueva en el formulario.
+if ($request->filled('password')) {
+    $userData['password'] = Hash::make($request->password);
+}
+
+// Ahora, pasa el array completo a la función de actualización.
+$user->update($userData);
             
             // Sincroniza los roles y permisos del usuario
             $user->syncRoles($request->input('roles'));

@@ -7,7 +7,7 @@
             <div class="row g-2 align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        Referred users
+                        Referred Partners
                     </h2>
                 </div>
                 <div class="col-12 col-md-auto ms-auto d-print-none">
@@ -22,7 +22,7 @@
                                     <line x1="12" y1="5" x2="12" y2="19"/>
                                     <line x1="5" y1="12" x2="19" y2="12"/>
                                 </svg>
-                                Create Referred User
+                                Create Partners User
                             </a>
                         </div>
                     @endcan
@@ -54,7 +54,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Referred Clients</h3>
+                            <h3 class="card-title">Referred Partners</h3>
                         </div>
                         <div class="table-responsive">
                             <table class="table card-table table-vcenter text-nowrap datatable">
@@ -71,6 +71,7 @@
                                         <th>Company</th>
                                     @endcan
                                     <th>Created</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -78,7 +79,8 @@
                                     <tr>
                                         <td>{{ $referral->name }}</td>
                                         @can('view email')
-                                            <td>{{ $referral->email }}</td>
+                                            <td><a href="{{ route('partners.users.show', $referral->email)}}" class="text-reset"
+                                               tabindex="-1">{{  ucwords(strtolower($referral->email))  ?? '—' }}</a></td>
                                         @endcan
                                         @can('view phone')
                                             <td>{{ $referral->phone ?? '—' }}</td>
@@ -87,6 +89,22 @@
                                             <td>{{ $referral->company ?? '—' }}</td>
                                         @endcan
                                         <td>{{ $referral->created_at->format('d M Y') }}</td>
+                                        <td class="text-center">
+                                            <form action="{{ route('partners.users.destroy', $referral->id) }}" method="POST">
+                                                 @csrf
+                                                 @method('DELETE')
+                                                 <button type="submit" class="btn btn-ghost-danger btn-icon" onclick="return confirm('¿Estás seguro de que quieres desvincular a este usuario de tu lista de referidos?');">
+                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                     <line x1="4" y1="7" x2="20" y2="7"></line>
+                                                     <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                     <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                     <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                                                     <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                                                     </svg>
+                                                 </button>
+                                             </form>
+                                         </td>
                                     </tr>
                                 @empty
                                     <tr>

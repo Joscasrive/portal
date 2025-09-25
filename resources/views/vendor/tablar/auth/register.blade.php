@@ -26,6 +26,20 @@
                     @enderror
                 </div>
                 <div class="mb-3">
+                    <label class="form-label">Phone</label>
+                    <input type="phone" name="phone" id="phone" class="form-control @error('phone') is-invalid @enderror" placeholder="Enter phone">
+                    @error('phone')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Company</label>
+                    <input type="text" name="company" id="phone" class="form-control @error('company') is-invalid @enderror" placeholder="Enter phone">
+                    @error('company')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="mb-3">
                     <label class="form-label">Password</label>
                     <div class="input-group input-group-flat">
                         <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password"
@@ -167,6 +181,15 @@
   });
 </script>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const phoneInput = document.getElementById('phone');
 
+        phoneInput.addEventListener('input', function (e) {
+            const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+    });
+</script>
 
 @endsection

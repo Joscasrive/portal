@@ -12,11 +12,7 @@
             </div>
         </div>
     </div>
-    <div class="page-body">
-        <div class="container-xl">
-            <div class="row row-deck row-cards">
-                <div class="col-12">
-                    @if (session('success'))
+     @if (session('success'))
                         <div class="alert alert-success" role="alert">
                             {{ session('success') }}
                         </div>
@@ -26,6 +22,10 @@
                             {{ session('error') }}
                         </div>
                     @endif
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-12">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Edit Form</h3>
@@ -66,6 +66,34 @@
                                         @enderror
                                     </div>
                                 </div>
+
+                                {{-- New password fields section --}}
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="changePasswordSwitch">
+                                            <label class="form-check-label" for="changePasswordSwitch">Change Password</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" id="passwordFields" style="display:none;">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" for="password">Password</label>
+                                        <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror">
+                                        @error('password')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" for="password_confirmation">Confirm Password</label>
+                                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control @error('password_confirmation') is-invalid @enderror">
+                                        @error('password_confirmation')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label" for="roles">Role</label>
@@ -129,12 +157,30 @@
         document.addEventListener('DOMContentLoaded', function () {
             const commissionableToggle = document.getElementById('is_commissionable');
             const commissionPercentageGroup = document.getElementById('commissionPercentageGroup');
+            const changePasswordSwitch = document.getElementById('changePasswordSwitch');
+            const passwordFields = document.getElementById('passwordFields');
+            const passwordInput = document.getElementById('password');
+            const passwordConfirmationInput = document.getElementById('password_confirmation');
 
+            // Toggle commission field
             commissionableToggle.addEventListener('change', function() {
                 if (this.checked) {
                     commissionPercentageGroup.style.display = 'block';
                 } else {
                     commissionPercentageGroup.style.display = 'none';
+                }
+            });
+
+            // Toggle password fields
+            changePasswordSwitch.addEventListener('change', function() {
+                if (this.checked) {
+                    passwordFields.style.display = 'flex';
+                    passwordInput.required = true;
+                    passwordConfirmationInput.required = true;
+                } else {
+                    passwordFields.style.display = 'none';
+                    passwordInput.required = false;
+                    passwordConfirmationInput.required = false;
                 }
             });
         });

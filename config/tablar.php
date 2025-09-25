@@ -155,7 +155,7 @@ return [
             'url' => '/customers'
         ],
         [
-    'text' => 'Referred',
+    'text' => 'Partners',
     'icon' => 'ti ti-password-user',
     'url' => '/partners/users/create',
     'can' =>'see-user' 
