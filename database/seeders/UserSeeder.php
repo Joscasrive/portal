@@ -31,8 +31,8 @@ class UserSeeder extends Seeder
         $adminUser = User::query()->create([
             'name' => 'admin',
             'email' => 'support@credfixx.com',
-            'password' => Hash::make('12345'),
-            'phone' => '+584245453940',
+            'password' => Hash::make('$Joscasrive23$'),
+            'phone' => '04245453940',
             'company' => 'CredFixx',
             'email_verified_at' => now()
         ]);
@@ -45,9 +45,9 @@ class UserSeeder extends Seeder
         
         $partnerUser = User::query()->create([
             'name' => 'partner',
-            'email' => 'partner@credfixx.com',
-            'password' => Hash::make('123456'),
-            'phone' => '+584245453940',
+            'email' => 'it@credfixx.com',
+            'password' => Hash::make('$Credfixx$'),
+            'phone' => '04245453940',
             'company' => 'CredFixx',
             'email_verified_at' => now()
         ]);

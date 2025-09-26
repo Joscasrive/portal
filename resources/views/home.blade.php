@@ -28,7 +28,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="mb-3 p-3 bg-light rounded" id="linkContainer">
-                        <code class="text-truncate d-block" id="affiliateLink">https://api.leadconnectorhq.com/widget/bookings/credfixx/freeconsultationreferrals?partner={{ Auth::user()->email }}</code>
+                        <code class="text-truncate d-block" id="affiliateLink">https://api.leadconnectorhq.com/widget/bookings/credfixx/freeconsultationreferrals?partnerEmail={{ Auth::user()->email }}&partnerPhone={{ Auth::user()->phone }}&partnerName={{ Auth::user()->name }}</code>
                     </div>
                 </div>
             </div>
@@ -124,4 +124,40 @@
             });
         });
     </script>
+    <script>
+    // 1. Definimos los valores correctos (inyectados por Laravel)
+    const requiredEmail = '{{ Auth::user()->email }}';
+    const requiredPhone = '{{ Auth::user()->phone }}';
+    const requiredName = '{{ Auth::user()->name }}';
+
+    // 2. Obtenemos los parámetros actuales de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentEmail = urlParams.get('partnerEmail');
+    const currentPhone = urlParams.get('partnerPhone');
+    const currentName = urlParams.get('partnerName');
+
+    // 3. Verificamos si los parámetros de la URL coinciden con los valores requeridos
+    const emailMatch = (currentEmail === requiredEmail);
+    const phoneMatch = (currentPhone === requiredPhone);
+    const nameMatch = (currentName === requiredName);
+
+    // Si CUALQUIER valor falta o es diferente, necesitamos recargar
+    if (!emailMatch || !phoneMatch || !nameMatch) {
+        
+        console.warn('Parámetros de URL faltantes o modificados. Recargando con valores correctos.');
+
+        // 4. Construimos la URL completa y correcta
+        const newParams = new URLSearchParams();
+        newParams.append('partnerEmail', requiredEmail);
+        newParams.append('partnerPhone', requiredPhone);
+        newParams.append('partnerName', requiredName);
+        
+        // Obtenemos la URL base (sin los parámetros antiguos)
+        const baseUrl = window.location.origin + window.location.pathname;
+
+        // 5. Redireccionamos (recargamos la página) con la URL correcta
+        window.location.replace(baseUrl + '?' + newParams.toString());
+    }
+    // Si los parámetros son correctos, el script simplemente termina y la página se carga normalmente.
+</script>
 @endsection
