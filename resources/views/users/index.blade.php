@@ -59,7 +59,8 @@
                                         @if (Auth::user()->id !== $user->id)
                                             <tr>
                                                 <td><a href="{{ route('users.edit', $user->id) }}" class="text-reset">{{ $user->name }}</a></td>
-                                                <td>{{ $user->email }}</td>
+                                                <td><a href="{{ route('partners.users.show', $user->email)}}" class="text-reset"
+                                               tabindex="-1">{{  ucwords(strtolower($user->email))  ?? '—' }}</a>  </td>
                                                 <td>
                                                     @foreach ($user->getRoleNames() as $role)
                                                         <span>{{ ucwords($role) }}</span>

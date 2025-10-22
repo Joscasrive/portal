@@ -78,6 +78,7 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
+                                    <th>Payment</th> 
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -94,6 +95,34 @@
                                         <td>{{ $contacto['email'] ?? '—' }}</td>
                                         <td>
                                             {{ $contacto['phone'] ?? '—' }}
+                                        </td>
+                                        <td>
+                                            @php
+                                                // Usamos el campo procesado en el controlador, que es SIEMPRE un string.
+                                                $paymentStatus = strtolower($contacto['payment_status_conditional'] ?? 'n/a');
+                                                $paymentText = '';
+                                                $paymentBadgeClass = '';
+
+                                                switch ($paymentStatus) {
+                                                    case 'paid':
+                                                        $paymentText = 'Paid';
+                                                        $paymentBadgeClass = 'bg-success';
+                                                        break;
+                                                    case 'in progress': // Asumiendo este valor de GHL
+                                                        $paymentText = 'In Progress';
+                                                        $paymentBadgeClass = 'bg-warning';
+                                                        break;
+                                                    case 'undefined':
+                                                        $paymentText = 'Undefined';
+                                                        $paymentBadgeClass = 'bg-danger';
+                                                        break;
+                                                    default: // Incluye 'n/a' y cualquier otro caso
+                                                        $paymentText = 'N/A';
+                                                        $paymentBadgeClass = 'bg-dark'; 
+                                                        break;
+                                                }
+                                            @endphp
+                                            <span class="badge {{ $paymentBadgeClass }}">{{ $paymentText }}</span>
                                         </td>
                             
                             

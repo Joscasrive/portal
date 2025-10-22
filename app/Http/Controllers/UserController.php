@@ -182,18 +182,26 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-                'phone' => 'required|string|max:255|unique:users,phone,' . $user->id,
-                'password' => 'nullable|string|min:8|confirmed',
-                'company' => 'nullable|string|max:255',
-                'is_commissionable' => 'nullable|boolean',
-                'commission_percentage' => 'required_if:is_commissionable,true|nullable|numeric|between:0,100',
-                'roles' => 'required',
-                'permissions' => 'nullable|array', 
-                'permissions.*' => 'string', 
-            ]);
+            $validationRules = [
+    'name' => 'required|string|max:255',
+    // Ignora el ID del usuario actual para la validación de email
+    'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+    // Ignora el ID del usuario actual para la validación de phone
+    'phone' => 'required|string|max:255|unique:users,phone,' . $user->id,
+    'company' => 'nullable|string|max:255',
+    'is_commissionable' => 'nullable|boolean',
+    'commission_percentage' => 'required_if:is_commissionable,true|nullable|numeric|between:0,100',
+    'roles' => 'required',
+    'permissions' => 'nullable|array',
+    'permissions.*' => 'string',
+];
+
+
+if ($request->filled('password')) {
+    $validationRules['password'] = 'string|min:8|confirmed';
+}
+
+$request->validate($validationRules);
 
            $userData = [
     'name' => $request->name,

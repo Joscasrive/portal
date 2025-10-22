@@ -1,8 +1,6 @@
 @extends('tablar::page')
-
 @section('content')
 
-    <!-- Page header -->
     <div class="page-header d-print-none">
         <div class="container-xl">
             <div class="row g-2 align-items-center">
@@ -11,15 +9,13 @@
                         Customers
                     </h2>
                 </div>
-                <!-- Page title actions -->
                 <div class="col-12 col-md-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <a class="btn btn-primary d-sm-inline-block mb-2" data-bs-toggle="modal"
-                           data-bs-target="#modal">
-                            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                            data-bs-target="#modal">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                 stroke-linecap="round" stroke-linejoin="round">
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                 <line x1="12" y1="5" x2="12" y2="19"/>
                                 <line x1="5" y1="12" x2="19" y2="12"/>
@@ -32,62 +28,13 @@
         </div>
     </div>
     @if (session('error'))
-        <div class="alert alert-danger" role="alert">
-            <div class="alert-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="icon alert-icon icon-2">
-                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
-                    <path d="M12 8v4"></path>
-                    <path d="M12 16h.01"></path>
-                </svg>
-            </div>
-            <div>
-                <h4 class="alert-heading">We're sorry…</h4>
-                <div class="alert-description">
-                    {{ session('error') }}
-                </div>
-            </div>
-        </div>
-    @elseif (session('success'))
-        <div class="alert alert-success" role="alert">
-            <div class="alert-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="icon alert-icon icon-2">
-                    <path d="M12 20a8 8 0 1 1 0 -16a8 8 0 0 1 0 16z"/>
-                    <path d="M9 12l2 2l4 -4"/>
-                </svg>
-            </div>
-            <div>
-                <h4 class="alert-heading">Success!</h4>
-                <div class="alert-description">
-                    {{ session('success') }}
-                </div>
-            </div>
-        </div>
-    @endif
+        @elseif (session('success'))
+        @endif
 
-   
+    
     @if(auth()->check() && auth()->user()->is_commissionable)
-        <div class="page-body">
-            <div class="container-xl">
-                <div class="alert alert-info" role="alert">
-                    <div class="d-flex">
-                        <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 10l.01 0" /><path d="M11 14h2l-2 4h2" /></svg>
-                        </div>
-                        <div>
-                            <h4 class="alert-title">Your Commission Percentage</h4>
-                            <div class="text-muted">Your current commission amount is <strong>${{ auth()->user()->commission_percentage ?? 0 }}</strong>.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
+        @endif
 
-    <!-- Page body -->
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-deck row-cards">
@@ -122,9 +69,9 @@
                                 </div>
                                 <div class="ms-auto text-muted">
                                     <form method="GET" action="{{ route('customers') }}"
-                                          class="mb-3 d-flex gap-2 align-items-center">
+                                            class="mb-3 d-flex gap-2 align-items-center">
                                         <input type="text" name="search" value="{{ request('search') }}"
-                                               placeholder="Search..." class="form-control"/>
+                                                placeholder="Search..." class="form-control"/>
                                         <select name="estado" onchange="this.form.submit()" class="form-select">
                                             <option value="">All</option>
                                             <option value="active" {{ request('estado') === 'active' ? 'selected' : '' }}>
@@ -145,22 +92,16 @@
                                 <thead>
                                 <tr>
                                     <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox"
-                                                           aria-label="Select all invoices"></th>
-                                    <th class="w-1">No.
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/chevron-up -->
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                             class="icon icon-sm text-dark icon-thick" width="24" height="24"
-                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                             stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <polyline points="6 15 12 9 18 15"/>
-                                        </svg>
-                                    </th>
+                                                                 aria-label="Select all invoices"></th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
+
+                                    
+                                    
                                     <th>Created</th>
                                     <th>Status</th>
+                                    <th>Payment</th> 
                                     <th></th>
                                 </tr>
                                 </thead>
@@ -169,9 +110,8 @@
                                     <tr>
                                         <td>
                                             <input class="form-check-input m-0 align-middle" type="checkbox"
-                                                   aria-label="Select invoice">
+                                                    aria-label="Select invoice">
                                         </td>
-                                        <td><span class="text-muted">{{ str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}</span></td>
                                         <td><a href="{{ route('reporting', $contacto['id'])}}" class="text-reset"
                                                tabindex="-1">{{  ucwords(strtolower($contacto['contactName']))  ?? '—' }}</a>
                                         </td>
@@ -179,35 +119,72 @@
                                         <td>
                                             {{ $contacto['phone'] ?? '—' }}
                                         </td>
+                                        
+                                        
+                                        
                                         <td>{{ \Carbon\Carbon::parse($contacto['dateAdded'] ?? '—')->format('d M Y') }}</td>
                                         <td>
                                             @php
-                                                $esActivo = strtolower($contacto['estado']) === 'active';
+                                                $esActivo = strtolower($contacto['estado'] ?? 'inactive') === 'active';
                                                 $badgeClass = $esActivo ? 'bg-success' : 'bg-danger';
                                                 $estadoTexto = $esActivo ? 'Active' : 'Inactive';
                                             @endphp
                                             <span class="badge {{ $badgeClass }} me-1"></span> {{ $estadoTexto }}
                                         </td>
+                                        {{-- NEW PAYMENT STATUS COLUMN LOGIC --}}
+                                        <td>
+                                            @php
+                                                // Usamos el campo procesado en el controlador, que es SIEMPRE un string.
+                                                $paymentStatus = strtolower($contacto['payment_status_conditional'] ?? 'n/a');
+                                                $paymentText = '';
+                                                $paymentBadgeClass = '';
+
+                                                switch ($paymentStatus) {
+                                                    case 'paid':
+                                                        $paymentText = 'Paid';
+                                                        $paymentBadgeClass = 'bg-success';
+                                                        break;
+                                                    case 'in progress': // Asumiendo este valor de GHL
+                                                        $paymentText = 'In Progress';
+                                                        $paymentBadgeClass = 'bg-warning';
+                                                        break;
+                                                    case 'undefined':
+                                                        $paymentText = 'Undefined';
+                                                        $paymentBadgeClass = 'bg-danger';
+                                                        break;
+                                                    default: // Incluye 'n/a' y cualquier otro caso
+                                                        $paymentText = 'N/A';
+                                                        $paymentBadgeClass = 'bg-dark'; 
+                                                        break;
+                                                }
+                                            @endphp
+                                            <span class="badge {{ $paymentBadgeClass }}">{{ $paymentText }}</span>
+                                        </td>
+                                        {{-- END NEW PAYMENT STATUS COLUMN LOGIC --}}
                                         <td class="text-end">
                                             <span class="dropdown">
                                                 <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport"
                                                         data-bs-toggle="dropdown">Actions</button>
                                                 <div class="dropdown-menu dropdown-menu-end">
                                                     <form id="requestTradelinesForm-{{ $contacto['id'] ?? $index }}"
-                                                          action="{{ route('requests') }}" method="POST" style="display: none;">
+                                                        action="{{ route('requests') }}" method="POST" style="display: none;">
                                                         @csrf
                                                         <input type="hidden" name="customerEmail"
-                                                               value="{{ $contacto['email'] ?? '' }}">
+                                                                value="{{ $contacto['email'] ?? '' }}">
                                                     </form>
                                                     <a class="dropdown-item"
-                                                       onclick="event.preventDefault(); document.getElementById('requestTradelinesForm-{{ $contacto['id'] ?? $index }}').submit();">
+                                                        onclick="event.preventDefault(); document.getElementById('requestTradelinesForm-{{ $contacto['id'] ?? $index }}').submit();">
                                                         Request Tradelines
                                                     </a>
                                                     <a class="dropdown-item btn-create-note"
-                                                       data-bs-toggle="modal"
-                                                       data-bs-target="#noteModal"
-                                                       data-contact='@json($contacto)'>
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#noteModal"
+                                                        data-contact='@json($contacto)'>
                                                         Create Note
+                                                    </a>
+                                                    <a class="dropdown-item" 
+                                                        href="{{ route('tasks.create', ['email' => $contacto['email'] ?? '']) }}">
+                                                        Create Task
                                                     </a>
                                                 </div>
                                             </span>
@@ -217,7 +194,6 @@
                                 </tbody>
                             </table>
                         </div>
-                        <!-- Paginación -->
                         <div class="card-footer d-flex align-items-center">
                             <p class="m-0 text-muted">
                                 Showing <span>{{ $contactos->firstItem() }}</span> to <span>{{ $contactos->lastItem() }}</span> of
@@ -228,8 +204,8 @@
                                 <li class="page-item {{ $contactos->onFirstPage() ? 'disabled' : '' }}">
                                     <a class="page-link" href="{{ $contactos->previousPageUrl() }}" aria-label="Previous">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                             stroke-linecap="round" stroke-linejoin="round">
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                             <polyline points="15 6 9 12 15 18"/>
                                         </svg>
@@ -246,8 +222,8 @@
                                 <li class="page-item {{ !$contactos->hasMorePages() ? 'disabled' : '' }}">
                                     <a class="page-link" href="{{ $contactos->nextPageUrl() }}" aria-label="Next">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                             stroke-linecap="round" stroke-linejoin="round">
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                             <polyline points="9 6 15 12 9 18"/>
                                         </svg>
@@ -263,67 +239,11 @@
     </div>
     {{-- Moda --}}
     <div class="modal fade" id="noteModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <form method="POST" action="{{ route('notes') }}">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Create Note</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-primary d-flex align-items-center" role="alert">
-                            <i class="bi bi-person-circle me-2 fs-4"></i>
-                            <div>
-                                <strong>Selected Contact:</strong>
-                                <span id="contact-name-display" class="fs-5 fw-bold"></span>
-                            </div>
-                        </div>
-                        <input type="hidden" name="contact_id" id="contact-id-field">
-                        <input type="hidden" name="assigned_to" id="assigned-to-field">
-                        <div class="mb-3">
-                            <label for="note-description" class="form-label">Description</label>
-                            <textarea class="form-control" id="note-description" name="description" rows="4" required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Note</button>
-                    </div>
-                </div>
-            </form>
         </div>
-    </div>
     </div>
     {{-- Moda --}}
     <div class="modal fade" id="modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <form action="{{ route('customer') }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title">Search by Email</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email" placeholder="Enter email address" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary ms-auto">
-                            Search
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
-    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

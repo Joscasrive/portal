@@ -186,50 +186,87 @@ class PartnerUserController extends Controller
 
 ////////////////////////////////////////////////
 
-public function show(Request $request ,$email){
-  $api = env('MY_APP_ONE');
+private const COMMISSION_ID = 'ELw4jVDq0DFCXUxOtSfz'; 
+    private const PAYMENT_STATUS_ID = 'KgTdj1bYqjSB8Zjg4oNq'; 
 
-       
-          $curl = curl_init();
+    public function show(Request $request, $email)
+    {
+        $api = env('MY_APP_ONE');
+        $headers = ["Authorization: Bearer $api"];
 
-curl_setopt_array($curl, array(
-  CURLOPT_URL => 'https://rest.gohighlevel.com/v1/contacts/?limit=100&query=referral',
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => '',
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 0,
-  CURLOPT_FOLLOWLOCATION => true,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => 'GET',
-  CURLOPT_HTTPHEADER => array(
-    "Authorization: Bearer $api",
-  ),
-));
+        $curl = curl_init();
 
-$response = curl_exec($curl);
-curl_close($curl);
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://rest.gohighlevel.com/v1/contacts/?limit=100&query=referral',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => $headers,
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
         
-
-
-
-
-
-
-
-        $contactos = json_decode($response, true)['contacts']; //Ojoooo Esto debería ser una matriz de contactos.
+        $contactos = json_decode($response, true)['contacts'] ?? [];
         $contactos = collect($contactos);
-        $contactos = $contactos->map(function ($contacto) {
+
+        // Usamos las constantes dentro del 'map'
+        $commissionId = self::COMMISSION_ID;
+        $paymentStatusId = self::PAYMENT_STATUS_ID;
+        
+        $contactos = $contactos->map(function ($contacto) use ($commissionId, $paymentStatusId) {
+            
+            // 1. Crear un mapa de campos personalizados para búsqueda rápida
+            $customFieldsMap = [];
+            foreach (($contacto['customField'] ?? []) as $field) {
+                if (isset($field['id'])) {
+                    $customFieldsMap[$field['id']] = $field['value'] ?? null;
+                }
+            }
+            
+            // --- Lógica de Estado de Activo (Existente) ---
             $esActivo = collect($contacto['customField'] ?? [])
                 ->contains(function ($field) {
                     return is_string($field['value']) && strtolower($field['value']) === 'current';
-
                 });
 
             $contacto['estado'] = $esActivo ? 'active' : 'inactive';
+
+            
+            // --- Lógica Nueva: Pago Condicional (CORREGIDA) ---
+            $commissionStatus = $customFieldsMap[$commissionId] ?? null;
+            $paymentStatus = $customFieldsMap[$paymentStatusId] ?? null;
+
+            // La variable final. Por defecto, es 'N/A' (Not Applicable).
+            // Esto asegura que siempre será una cadena.
+            $conditionalStatus = 'N/A'; 
+
+            // 1. Verificar si la comisión está marcada como 'YES'
+            if (is_string($commissionStatus) && strtolower($commissionStatus) === 'yes') {
+                
+                // 2. Si la comisión es 'yes', comprobamos el estado de pago real.
+                if ($paymentStatus && is_string($paymentStatus)) {
+                    // Asignar el estado de pago (ej: 'Pagada', 'En progreso')
+                    $conditionalStatus = $paymentStatus; 
+                } else {
+                    // Si es 'yes' pero el campo de estado de pago está vacío
+                    $conditionalStatus = 'Undefined';
+                }
+            }
+            
+            // Asignar el estado de pago condicional (siempre una cadena)
+            $contacto['payment_status_conditional'] = $conditionalStatus;
+
             return $contacto;
         });
-         $loggedInUserEmail = $email ;
-          if ($loggedInUserEmail) {
+        // ====================================================================
+        
+        $loggedInUserEmail = $email;
+        if ($loggedInUserEmail) {
             $contactos = $contactos->filter(function ($contacto) use ($loggedInUserEmail) {
                 $foundEmailMatch = false;
                 foreach (($contacto['customField'] ?? []) as $field) {
@@ -244,43 +281,39 @@ curl_close($curl);
             });
         }
         
-    
- $search = $request->get('search');
+        // ... (El resto del filtrado y paginación) ...
+        
+        $search = $request->get('search');
 
+        if ($search) {
+            $contactos = $contactos->filter(function ($contacto) use ($search) {
+                // Agregado '?? ""' para manejar posibles valores nulos de forma segura
+                return stripos($contacto['contactName'] ?? '', $search) !== false || 
+                       stripos($contacto['email'] ?? '', $search) !== false || 
+                       stripos($contacto['phone'] ?? '', $search) !== false;
+            });
+        }
 
- if ($search) {
-     $contactos = $contactos->filter(function ($contacto) use ($search) {
-         return stripos($contacto['contactName'], $search) !== false || stripos($contacto['email'], $search)!== false || stripos($contacto['phone'], $search) !== false;
-     });
- }
+        $perPage = request()->get('perPage', 10);
+        $currentPage = request()->get('page', 1);
 
-// Número de elementos por página
-$perPage = request()->get('perPage', 10);
-// Página actual
-$currentPage = request()->get('page', 1);
+        $contactosPaginados = $contactos->forPage($currentPage, $perPage);
+        $totalContactos = $contactos->count();
 
-// Crear un segmento de la colección para la página actual
-$contactosPaginados = $contactos->forPage($currentPage, $perPage);
+        $contactosPaginator = new LengthAwarePaginator(
+            $contactosPaginados,
+            $totalContactos,
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
-// Total de contactos
-$totalContactos = $contactos->count();
+        $user = User::where('email', $email)->first();
 
-// Crear el paginador
-$contactosPaginator = new LengthAwarePaginator(
-    $contactosPaginados, // Elementos de la página actual
-    $totalContactos,     // Total de elementos
-    $perPage,            // Elementos por página
-    $currentPage,        // Página actual
-    ['path' => request()->url(), 'query' => request()->query()] // Preservar los parámetros de la URL
-);
-
-$user = User::where('email', $email)->first();
-
-return view('partner-show', [
-    'contactos' => $contactosPaginator,
-    'totalContactos' => $totalContactos,
-    'user' => $user,
-]);
-
-}
+        return view('partner-show', [
+            'contactos' => $contactosPaginator,
+            'totalContactos' => $totalContactos,
+            'user' => $user,
+        ]);
+    }
 }

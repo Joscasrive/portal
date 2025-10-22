@@ -5,7 +5,7 @@ use App\Http\Controllers\PartnerUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ReportingController;
 use App\Http\Controllers\UserController;
-
+use App\Http\Controllers\TaskController;
 // Rutas de autenticación
 Auth::routes();
 
@@ -21,10 +21,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/conversations', [HomeController::class, 'conversations'])->name('conversations');
     Route::post('/requests', [HomeController::class, 'requests'])->name('requests');
     Route::post('/notes', [HomeController::class, 'notes'])->name('notes');
-    Route::get('/form', [HomeController::class, 'form'])->name('form');
     Route::get('/searchClient', [HomeController::class, 'searchClient'])->name('searchClient');
     Route::resource('users', UserController::class);
-    
+    Route::get('/tasks/create/{email?}', [TaskController::class, 'create'])->name('tasks.create');
+    Route::post('/tasks/store', [TaskController::class, 'store'])->name('tasks.store');
     Route::get('/partners/users/create', [PartnerUserController::class, 'create'])->name('partners.users.create');
     Route::post('/partners/users', [PartnerUserController::class, 'store'])->name('partners.users.store');
     Route::delete('/partners/users/{user}', [PartnerUserController::class, 'destroy'])->name('partners.users.destroy');
