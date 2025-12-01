@@ -29,6 +29,7 @@ class User extends Authenticatable
         'is_commissionable',
         'commission_percentage',
         'referrer_id', 
+        'referrer_commission_amount',
     ];
 
     /**

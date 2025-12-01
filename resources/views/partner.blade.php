@@ -70,7 +70,7 @@
                                     @can('view company')
                                         <th>Company</th>
                                     @endcan
-                                    <th>Created</th>
+                                    <th>CREATION DATE</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                                 </thead>

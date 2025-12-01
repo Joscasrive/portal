@@ -24,6 +24,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->foreignId('referrer_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->decimal('referrer_commission_amount', 10, 2)->nullable()->after('referrer_id');
            
         });
 

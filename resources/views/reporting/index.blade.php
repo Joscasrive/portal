@@ -4,17 +4,36 @@
 
 @section('content')
 
-    <div class="page-header d-print-none">
-        <div class="container-xl">
-            <div class="row g-2 align-items-center">
-                <div class="col">
-                    <h2 class="page-title">
-                        Client Report
-                    </h2>
+   <div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            
+            
+            <div class="col">
+                <h2 class="page-title">
+                    Client Report
+                </h2>
+            </div>
+
+            
+            <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                    
+                    
+                    @if ($commissionInvoiceUrl)
+                        <a href="{{ $commissionInvoiceUrl }}" target="_blank" class="btn btn-outline-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path><path d="M9 7h1.5a2 2 0 0 1 0 4.5h-1.5a2 2 0 0 0 0 4.5h1.5"></path><path d="M12 7l0 10"></path></svg>
+                            Payment Receipt
+                        </a>
+                    @endif
+
                 </div>
             </div>
+            
+            
         </div>
     </div>
+</div>
     
     <div class="page-body">
         <div class="container-xl">
@@ -23,93 +42,171 @@
                 {{-- Sección de Datos del Cliente (Mitad Izquierda) --}}
                 <div class="col-md-6">
                     <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Customer Information & Progress</h3>
-                        </div>
-                        <div class="card-body">
-                            @if ($clienteData && isset($clienteData['contact']))
-                                <h4 class="mb-3">General Details</h4>
-                                <ul class="list-group list-group-flush mb-4">
-                                    <li class="list-group-item">
-                                        <strong>Name:</strong> 
-                                        {{ ucfirst($clienteData['contact']['firstName'] ?? '') }} 
-                                        {{ ucfirst($clienteData['contact']['lastName'] ?? '') }}
-                                    </li>
-                                    <li class="list-group-item"><strong>Email:</strong> {{ $clienteData['contact']['email'] ?? '' }}</li>
-                                    <li class="list-group-item"><strong>Phone:</strong> {{ $clienteData['contact']['phone'] ?? '' }}</li>
-                                    <li class="list-group-item"><strong>Company:</strong> {{ $clienteData['contact']['companyName'] ?? 'N/A' }}</li>
-                                </ul>
+    <div class="card-header">
+        <h3 class="card-title">Customer Information & Progress</h3>
+    </div>
+    <div class="card-body">
+        @if ($clienteData && isset($clienteData['contact']))
+            <h4 class="mb-3">General Details</h4>
+            <ul class="list-group list-group-flush mb-4">
+                <li class="list-group-item">
+                    <strong>Name:</strong> 
+                    {{ ucfirst($clienteData['contact']['firstName'] ?? '') }} 
+                    {{ ucfirst($clienteData['contact']['lastName'] ?? '') }}
+                </li>
+                <li class="list-group-item"><strong>Email:</strong> {{ $clienteData['contact']['email'] ?? '' }}</li>
+                <li class="list-group-item"><strong>Phone:</strong> {{ $clienteData['contact']['phone'] ?? '' }}</li>
+                <li class="list-group-item"><strong>Company:</strong> {{ $clienteData['contact']['companyName'] ?? 'N/A' }}</li>
+            </ul>
 
-                                <h4 class="mb-3 border-top pt-3">Process Progress (Rounds)</h4>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">
-                                         <strong>Initial Analysis Report:</strong> 
-                                        @if ($reporteInicialUrl)
-                                            <a href="{{ $reporteInicialUrl }}" target="_blank" class="text-primary">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-external-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M11 7h-5a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-5"></path><path d="M10 14l10 -10"></path><path d="M15 4l5 0l0 5"></path></svg>
-                                                View Document
-                                            </a>
-                                       @else
-                                            <span class="text-muted">No document found for this Moment.</span>
-                                        @endif
-                                        <br>
-                                        <strong>Last Completed Round:</strong> 
+            <h4 class="mb-3 border-top pt-3">Credit Progress</h4>
+            <ul class="list-group list-group-flush">
+                
+                {{-- 1. REPORTE INICIAL / CREDIT REPORT --}}
+                 @if ($reporteInicialUrl)
+                <li class="list-group-item">
+                    <strong>Initial Credit Report:</strong> 
+                   
+                        <a href="{{ $reporteInicialUrl }}" target="_blank" class="text-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-external-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M11 7h-5a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-5"></path><path d="M10 14l10 -10"></path><path d="M15 4l5 0l0 5"></path></svg>
+                            View Credit Report
+                        </a>
+                   
                     
-                                        <span class="badge bg-primary-lt">{{ $lastCompletedRound }}</span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>Document Link:</strong> 
-                                        @if ($lastCompletedRoundUrl)
-                                            <a href="{{ $lastCompletedRoundUrl }}" target="_blank" class="text-primary">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-external-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M11 7h-5a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-5"></path><path d="M10 14l10 -10"></path><path d="M15 4l5 0l0 5"></path></svg>
-                                                View Document
-                                            </a>
-                                        @else
-                                            <span class="text-muted">No document found for this round.</span>
-                                        @endif
-                                    </li>
-                                </ul>
-                            @else
-                                <p>No customer data found.</p>
-                            @endif
+                </li>
+                @endif
+                {{-- 2. LISTADO DE TODOS LOS ROUNDS COMPLETADOS --}}
+                @if (!empty($allCompletedRounds))
+                    <li class="list-group-item list-group-item-light">
+                        <strong>Credit Reports:</strong>
+                        <ul class="list-unstyled mt-2 mb-0">
+                            @foreach ($allCompletedRounds as $round)
+                            <li class="d-flex justify-content-between align-items-center py-1">
+                                <span><span class="badge bg-blue-lt">{{ $round['name'] }}</span></span>
+                                @if ($round['url'])
+                                    <a href="{{ $round['url'] }}" target="_blank" class="text-alert small">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-download" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path><path d="M12 17l0 -5"></path><path d="M9 14l3 3l3 -3"></path></svg>
+                                        View Credit Report
+                                    </a>
+                                @else
+                                    <span class="text-muted small">No document link.</span>
+                                @endif
+                            </li>
+                            @endforeach
+                        </ul>
+                    </li>
+                @else
+                    {{-- Opcional: Mostrar que no hay rounds completados --}}
+                    <li class="list-group-item">
+                        <strong>Completed Rounds:</strong>
+                        <span class="text-muted">No rounds have been completed yet.</span>
+                    </li>
+                @endif
+                
+            </ul>
+            @else
+            <p>No customer data found.</p>
+        @endif
+    </div>
+</div>
+
+{{--
+|--------------------------------------------------------------------------
+| 1. CREDIT SCORE DISPLAY 
+|--------------------------------------------------------------------------
+|
+--}}
+{{-- <div class="row row-cards mb-4">
+    @isset($creditScores)
+        @foreach ($creditScores as $score)
+            @php
+                $creditValue = $score['@_Value'] ?? 'N/D';
+                $bureau = $score['@CreditRepositorySourceType'] ?? 'Unknown';
+                $model = $score['@_ModelNameTypeOtherDescription'] ?? 'N/A';
+                
+                
+                $scoreInt = (int)$creditValue;
+                $color = 'orange'; 
+                if ($scoreInt >= 740) {
+                    $color = 'green';
+                } elseif ($scoreInt >= 670) {
+                    $color = 'primary';
+                } elseif ($scoreInt > 0) {
+                    $color = 'red';
+                }
+            @endphp
+            <div class="col-md-4">
+                <div class="card card-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                               
+                                <span class="bg-{{ $color }} text-white avatar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 12a3 3 0 1 0 0 -6a3 3 0 0 0 0 6"></path><path d="M6 18c0 -2.76 2.69 -5 6 -5c3.31 0 6 2.24 6 5"></path></svg>
+                                </span>
+                            </div>
+                            <div class="col">
+                                <div class="font-weight-medium">
+                                    {{ $bureau }} Score ({{ $score['@CreditScoreID'] ?? '' }})
+                                </div>
+                                <div class="text-muted">
+                                    <span class="badge bg-secondary-lt">{{ $model }}</span>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <span class="h1 mb-0 text-{{ $color }}">
+                                    {{ $creditValue }}
+                                </span>
+                            </div>
                         </div>
-                        
                     </div>
+                </div>
+            </div>
+        @endforeach
+    @else
+      
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                No credit scores available yet.
+            </div>
+        </div>
+    @endisset
+</div> --}}
                     {{-- ================================================================================= --}}
                 {{-- SECCIÓN: REPORTE DE CRÉDITO (Full Width) --}}
                 {{-- ================================================================================= --}}
 
                 <div class="col-12 mt-4">
-                    @if (isset($creditData['CREDIT_RESPONSE']))
+                    {{-- @if (isset($creditData['CREDIT_RESPONSE']))
                         @php
                             $response = $creditData['CREDIT_RESPONSE'];
                             $borrower = $response['BORROWER'];
                             $cuentas = $response['CREDIT_LIABILITY'] ?? [];
                             $factors = $response['CREDIT_SCORE_FACTOR_SUMMARY']['CREDIT_SCORE_FACTOR_DETAIL'] ?? [];
 
-                            // Función auxiliar simple para formatear dinero
+                            
                             function formatMoney($amount) {
-                                // Asegurar que el valor es numérico antes de formatear
+                               
                                 return number_format((int)$amount, 0, '.', ',');
                             }
 
-                            // EXTRAER DATOS CLAVE DEL SUMMARY
+                           
                             $summaryMap = [];
                             foreach ($factors as $factor) {
                                 $summaryMap[$factor['@_ID']] = $factor['@_Value'];
                             }
 
-                            // Datos para las tarjetas resumen
-                            $score = $summaryMap['PT159'] ?? 'N/D'; // ID PT159 o similar para FICO/Score. Si no está, N/D.
+                            
+                            $score = $summaryMap['PT159'] ?? 'N/D'; 
                             $totalBalance = formatMoney($summaryMap['PT202'] ?? 0);
                             $openTrades = $summaryMap['PT201'] ?? 0;
                             $delinquentBalance = formatMoney($summaryMap['PT187'] ?? 0);
 
-                            // Contar cuentas negativas
+
                             $derogatoryCount = count(array_filter($cuentas, fn($c) => ($c['@_DerogatoryDataIndicator'] ?? 'N') === 'Y'));
                         @endphp
 
-                        {{-- CARD PRINCIPAL: SCORE Y RESUMEN RÁPIDO --}}
+                     
                         <div class="row row-cards mb-3">
                             <div class="col-md-3">
                                 <div class="card card-sm bg-primary-lt">
@@ -149,7 +246,7 @@
                             </div>
                         </div>
 
-                        {{-- DETALLE DEL REPORTE --}}
+                       
                         <div class="card mb-4">
                             <div class="card-header bg-dark text-white">
                                 <h3 class="card-title text-white">Credit Report Details</h3>
@@ -180,7 +277,7 @@
                             </div>
                         </div>
 
-                        {{-- TABLA DE CUENTAS (LIABILITIES) --}}
+                        
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Credit Liabilities ({{ count($cuentas) }} Tradelines)</h3>
@@ -250,7 +347,7 @@
                             </div>
                         </div>
                     @elseif (isset($creditData['error']))
-                        {{-- Muestra errores de la API --}}
+                       
                         <div class="alert alert-danger" role="alert">
                             <h4 class="alert-title">Credit Report Error: {{ $creditData['http_code'] ?? 'Unknown' }}</h4>
                             <div class="text-muted">
@@ -261,13 +358,13 @@
                             </div>
                         </div>
                     @else
-                        {{-- Muestra mensaje si no hay datos --}}
+                        
                         <div class="alert alert-info" role="alert">
                             The credit report data is not yet available.
                         </div>
-                    @endif
+                    @endif--}}
                 </div>
-                </div>
+                </div> 
 
                 {{-- Sección de Citas y TAREAS (Mitad Derecha) --}}
                 <div class="col-md-6">
@@ -380,11 +477,12 @@
                                                 <p class="mb-0 text-sm mt-1">{{ $task['description'] ?? 'No description.' }}</p>
                                             </div>
                                             
-                                            {{-- DISPLAY STATUS TEXT HERE --}}
-                                            <span class="badge ms-auto {{ $taskBadgeClass }}">
+                                            
+                                        </div>
+                                        {{-- DISPLAY STATUS TEXT HERE --}}
+                                            <span class="badge ms-auto {{ $taskBadgeClass }} text-white ">
                                                 {{ $taskStatusText }}
                                             </span>
-                                        </div>
                                     </div>
                                 @endforeach
                             @else

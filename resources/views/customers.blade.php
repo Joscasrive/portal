@@ -99,9 +99,9 @@
 
                                     
                                     
-                                    <th>Created</th>
+                                    <th>CREATION DATE</th>
                                     <th>Status</th>
-                                    <th>Payment</th> 
+                                    <th>Commission</th> 
                                     <th></th>
                                 </tr>
                                 </thead>
@@ -144,8 +144,8 @@
                                                         $paymentText = 'Paid';
                                                         $paymentBadgeClass = 'bg-success';
                                                         break;
-                                                    case 'in progress': // Asumiendo este valor de GHL
-                                                        $paymentText = 'In Progress';
+                                                    case 'pending': // Asumiendo este valor de GHL
+                                                        $paymentText = 'Pending';
                                                         $paymentBadgeClass = 'bg-warning';
                                                         break;
                                                     case 'undefined':
@@ -153,12 +153,12 @@
                                                         $paymentBadgeClass = 'bg-danger';
                                                         break;
                                                     default: // Incluye 'n/a' y cualquier otro caso
-                                                        $paymentText = 'N/A';
-                                                        $paymentBadgeClass = 'bg-dark'; 
+                                                        $paymentText = 'Unqualified';
+                                                        $paymentBadgeClass = 'bg-danger'; 
                                                         break;
                                                 }
                                             @endphp
-                                            <span class="badge {{ $paymentBadgeClass }}">{{ $paymentText }}</span>
+                                            <span class="badge {{ $paymentBadgeClass }} text-white">{{ $paymentText }}</span>
                                         </td>
                                         {{-- END NEW PAYMENT STATUS COLUMN LOGIC --}}
                                         <td class="text-end">

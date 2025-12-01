@@ -165,7 +165,7 @@ class UserController extends Controller
             'view phone',
             'view total referred users'
         ];
-
+      $user->load('referrer');
         
         $userPermissions = $user->getDirectPermissions()->pluck('name')->all();
 
@@ -183,42 +183,56 @@ class UserController extends Controller
     {
         try {
             $validationRules = [
-    'name' => 'required|string|max:255',
-    // Ignora el ID del usuario actual para la validación de email
-    'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-    // Ignora el ID del usuario actual para la validación de phone
-    'phone' => 'required|string|max:255|unique:users,phone,' . $user->id,
-    'company' => 'nullable|string|max:255',
-    'is_commissionable' => 'nullable|boolean',
-    'commission_percentage' => 'required_if:is_commissionable,true|nullable|numeric|between:0,100',
-    'roles' => 'required',
-    'permissions' => 'nullable|array',
-    'permissions.*' => 'string',
-];
+                'name' => 'required|string|max:255',
+                // Ignora el ID del usuario actual para la validación del email
+                'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+                // Ignora el ID del usuario actual para la validación del teléfono
+                'phone' => 'required|string|max:255|unique:users,phone,' . $user->id,
+                'company' => 'nullable|string|max:255',
+                
+                // Campos de comisión para el usuario actual
+                'is_commissionable' => 'nullable|boolean',
+                'commission_percentage' => 'required_if:is_commissionable,true|nullable|numeric|between:0,100',
+                
+                // NUEVO CAMPO: Monto de Comisión del Referidor (USD)
+                // Es anulable, pero si se proporciona, debe ser un número mayor o igual a cero.
+                'referrer_commission_amount' => 'nullable|numeric|min:0',
 
+                // Rol y Permisos
+                'roles' => 'required',
+                'permissions' => 'nullable|array',
+                'permissions.*' => 'string',
+            ];
 
-if ($request->filled('password')) {
-    $validationRules['password'] = 'string|min:8|confirmed';
-}
+            if ($request->filled('password')) {
+                $validationRules['password'] = 'string|min:8|confirmed';
+            }
 
-$request->validate($validationRules);
+            $request->validate($validationRules);
 
-           $userData = [
-    'name' => $request->name,
-    'email' => $request->email,
-    'phone' => $request->phone,
-    'company' => $request->company,
-    'is_commissionable' => $request->has('is_commissionable'),
-    'commission_percentage' => $request->input('commission_percentage'),
-];
+            $userData = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'company' => $request->company,
+                
+                // Campos de comisión
+                'is_commissionable' => $request->has('is_commissionable'),
+                
+                // Asegura que sea nulo si el checkbox está desactivado, de lo contrario obtiene el porcentaje
+                'commission_percentage' => $request->has('is_commissionable') ? $request->input('commission_percentage') : null,
+                
+                // NUEVO CAMPO: Guarda el monto fijo en USD para el referidor
+                'referrer_commission_amount' => $request->input('referrer_commission_amount'),
+            ];
 
-// Solo actualiza la contraseña si se ha proporcionado una nueva en el formulario.
-if ($request->filled('password')) {
-    $userData['password'] = Hash::make($request->password);
-}
+            // Solo actualiza la contraseña si se proporcionó una nueva en el formulario.
+            if ($request->filled('password')) {
+                $userData['password'] = Hash::make($request->password);
+            }
 
-// Ahora, pasa el array completo a la función de actualización.
-$user->update($userData);
+            // Actualiza el usuario con el array completo.
+            $user->update($userData);
             
             // Sincroniza los roles y permisos del usuario
             $user->syncRoles($request->input('roles'));
@@ -226,10 +240,12 @@ $user->update($userData);
 
             return redirect()->route('users.index')->with('success', 'User successfully updated.');
         } catch (\Exception $e) {
+            // Registra el error para propósitos de depuración
+            Log::error('User update failed: ' . $e->getMessage(), ['user_id' => $user->id, 'request_data' => $request->all()]);
+            
             return redirect()->back()->with('error', 'An error occurred while updating the user: ' . $e->getMessage());
         }
     }
-
     /**
      * Elimina un usuario de la base de datos.
      *

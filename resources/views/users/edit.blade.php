@@ -12,16 +12,16 @@
             </div>
         </div>
     </div>
-     @if (session('success'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-                    @if (session('error'))
-                        <div class="alert alert-danger" role="alert">
-                            {{ session('error') }}
-                        </div>
-                    @endif
+    @if (session('success'))
+        <div class="alert alert-success" role="alert">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger" role="alert">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-deck row-cards">
@@ -34,6 +34,8 @@
                             <form action="{{ route('users.update', $user->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
+                                
+                                {{-- Basic Information --}}
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label" for="name">Name</label>
@@ -66,9 +68,29 @@
                                         @enderror
                                     </div>
                                 </div>
+                                
+                                {{-- Referrer Information Block (Always visible if referrer exists, regardless of commission switch) --}}
+                                @if ($user->referrer)
+                                <div class="row mb-3 border-top pt-3">
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label">Referred By Partner</label>
+                                        <div class="card card-sm bg-azure-lt">
+                                            <div class="card-body py-2">
+                                                <p class="card-text mb-1">
+                                                    <strong>Name:</strong> {{ $user->referrer->name }}
+                                                </p>
+                                                <p class="card-text mb-0">
+                                                    <strong>Email:</strong> {{ $user->referrer->email }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                                {{-- End of Referrer Info Block --}}
 
-                                {{-- New password fields section --}}
-                                <div class="row">
+                                {{-- Password Change Section --}}
+                                <div class="row @unless($user->referrer) border-top @endunless pt-3">
                                     <div class="col-12 mb-3">
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" role="switch" id="changePasswordSwitch">
@@ -94,7 +116,8 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
+                                {{-- Role and Self-Commission Switch --}}
+                                <div class="row border-top pt-3">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label" for="roles">Role</label>
                                         <select name="roles" id="roles" class="form-control @error('roles') is-invalid @enderror" required>
@@ -111,21 +134,49 @@
                                         <label class="form-label" for="is_commissionable">Is Commissionable</label>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" role="switch" id="is_commissionable" name="is_commissionable" value="1" {{ old('is_commissionable', $user->is_commissionable) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="is_commissionable"></label>
+                                            <label class="form-check-label" for="is_commissionable">Enable to allow this user to earn referral commissions.</label>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row" id="commissionPercentageGroup" style="{{ old('is_commissionable', $user->is_commissionable) ? '' : 'display:none;' }}">
-                                    <div class="col-12 mb-3">
-                                        <label class="form-label" for="commission_percentage">Commission Amount</label>
+                                
+                                {{-- COMMISSION FIELDS GROUP (Visible only if is_commissionable is TRUE) --}}
+                                <div class="row" id="commissionFieldsGroup" style="{{ old('is_commissionable', $user->is_commissionable) ? '' : 'display:none;' }}">
+                                    
+                                    {{-- 1. FIELD: Self Commission Percentage (Always visible if is_commissionable) --}}
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" for="commission_percentage">Commission Amount
+</label>
                                         <input type="number" step="0.01" name="commission_percentage" id="commission_percentage" class="form-control @error('commission_percentage') is-invalid @enderror" value="{{ old('commission_percentage', $user->commission_percentage) }}">
                                         @error('commission_percentage')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
+                                        <small class="form-text text-muted">The percentage this user earns from their referrals.</small>
                                     </div>
+
+                                    {{-- 2. FIELD: Referrer Commission Amount (Only visible if is_commissionable AND referrer exists) --}}
+                                    @if ($user->referrer)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label" for="referrer_commission_amount">Referrer Commission Amount (USD)</label>
+                                            <input type="number" step="0.01" 
+                                                name="referrer_commission_amount" 
+                                                id="referrer_commission_amount" 
+                                                class="form-control @error('referrer_commission_amount') is-invalid @enderror"
+                                                value="{{ old('referrer_commission_amount', $user->referrer_commission_amount) }}"
+                                            >
+                                            @error('referrer_commission_amount')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            <small class="form-text text-muted">The fixed amount {{ $user->referrer->name }} receives for this user.</small>
+                                        </div>
+                                    @else
+                                        {{-- Placeholder to maintain layout if needed, though typically not required --}}
+                                        <div class="col-md-6 mb-3"></div>
+                                    @endif
                                 </div>
+                                {{-- End Commission Fields Group --}}
                                 
-                                <div class="row mt-4">
+                                {{-- Permissions Section --}}
+                                <div class="row mt-4 border-top pt-3">
                                     <div class="col-12">
                                         <h4>User Permissions</h4>
                                         <div class="mb-3">
@@ -156,43 +207,37 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const commissionableToggle = document.getElementById('is_commissionable');
-            const commissionPercentageGroup = document.getElementById('commissionPercentageGroup');
+            const commissionFieldsGroup = document.getElementById('commissionFieldsGroup');
             const changePasswordSwitch = document.getElementById('changePasswordSwitch');
             const passwordFields = document.getElementById('passwordFields');
-            const passwordInput = document.getElementById('password');
-            const passwordConfirmationInput = document.getElementById('password_confirmation');
 
-            // Toggle commission field
+            // 1. Toggle commission fields visibility
             commissionableToggle.addEventListener('change', function() {
                 if (this.checked) {
-                    commissionPercentageGroup.style.display = 'block';
+                    commissionFieldsGroup.style.display = 'flex'; // Use 'flex' since the group contains columns
                 } else {
-                    commissionPercentageGroup.style.display = 'none';
+                    commissionFieldsGroup.style.display = 'none';
                 }
             });
 
-            // Toggle password fields
+            // 2. Toggle password fields
             changePasswordSwitch.addEventListener('change', function() {
                 if (this.checked) {
                     passwordFields.style.display = 'flex';
-                    passwordInput.required = true;
-                    passwordConfirmationInput.required = true;
                 } else {
                     passwordFields.style.display = 'none';
-                    passwordInput.required = false;
-                    passwordConfirmationInput.required = false;
                 }
+            });
+
+            // 3. Phone number formatting
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function (e) {
+                const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+                // Format (XXX) XXX-XXXX
+                e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
             });
         });
     </script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const phoneInput = document.getElementById('phone');
-
-        phoneInput.addEventListener('input', function (e) {
-            const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
-            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
-        });
-    });
-</script>
 @endsection
+
+

@@ -14,6 +14,8 @@ class ReportingController extends Controller
 
 
 
+
+
 public function index($id)
 {
     
@@ -35,7 +37,7 @@ public function index($id)
     $clienteData = json_decode($responseCliente, true);
 
     // ====================================================================
-    // LOGICA PARA ENCONTRAR EL ULTIMO ROUND COMPLETADO Y SU URL
+    // LOGICA PARA ENCONTRAR TODOS LOS ROUNDS COMPLETADOS Y SUS URLS
     // ====================================================================
 
     
@@ -51,7 +53,7 @@ public function index($id)
         }
     }
 
-    // 🚩 NUEVA LÓGICA: OBTENER SOLO LA URL DEL REPORTE INICIAL 🚩
+    // 🚩 LÓGICA: OBTENER SOLO LA URL DEL REPORTE INICIAL 🚩
     $reporteInicialFieldId = '1MPmFaGP5xZio9SBVRlY';
     $reporteInicialUrl = null; 
 
@@ -73,11 +75,33 @@ public function index($id)
             $reporteInicialUrl = $firstFile['url'];
         }
     }
+// ====================================================================
+// 💵 NUEVA LÓGICA: OBTENER LA URL DE LA FACTURA DE COMISIÓN 💵
+// ====================================================================
+$invoiceFieldId = 'X5yrmQcALv7QuNGIwsz3';
+$commissionInvoiceUrl = null; 
+
+$invoiceData = $customFieldsMap[$invoiceFieldId] ?? null;
+
+// Verificar si el campo de factura existe y tiene un valor de archivo
+if (
+    is_array($invoiceData) && 
+    isset($invoiceData['value']) && 
+    is_array($invoiceData['value']) && 
+    !empty($invoiceData['value'])
+) {
+    // Extraer el valor del array (documento)
+    $fileValues = $invoiceData['value'];
+    $firstFile = reset($fileValues); 
     
+    // Asignar la URL de la factura
+    if (isset($firstFile['url'])) {
+        $commissionInvoiceUrl = $firstFile['url'];
+    }
+}
     
     /**
      * IDs de Campo de GHL para los ROUNDS 1 al 12 (Archivos)
-     * Estos IDs se extrajeron del array 'customField' del JSON .
      */
     $roundFieldIds = [
          1 => 'hM3Apm9VgmBzlL4DCAVP', // ROUND 1
@@ -96,40 +120,48 @@ public function index($id)
 
     
     $lastCompletedRound = 'ROUND 0'; 
-    $lastCompletedRoundUrl = null; 
+    $lastCompletedRoundUrl = null;  
+    
+    // 💥 NUEVO ARRAY PARA ALMACENAR TODOS LOS ROUNDS COMPLETADOS
+    $allCompletedRounds = []; 
 
     // Iteramos desde ROUND 1 hasta ROUND 12
     for ($i = 1; $i <= 12; $i++) {
-        $ghlFieldId = $roundFieldIds[$i] ?? null;
+    $roundName = "ROUND $i";
+    $ghlFieldId = $roundFieldIds[$i] ?? null;
 
-        
-        $contactRoundData = $customFieldsMap[$ghlFieldId] ?? null;
+    $contactRoundData = $customFieldsMap[$ghlFieldId] ?? null;
 
+    // Solo ejecuta la lógica si el campo existe Y tiene un valor de archivo
+    if (
+        $ghlFieldId && 
+        is_array($contactRoundData) && 
+        isset($contactRoundData['value']) && 
+        is_array($contactRoundData['value']) && 
+        !empty($contactRoundData['value'])
+    ) {
         
-        if (
-            $ghlFieldId && 
-            is_array($contactRoundData) && 
-            isset($contactRoundData['value']) && 
-            is_array($contactRoundData['value']) && 
-            !empty($contactRoundData['value'])
-        ) {
-            // Si encontramos datos de archivo, actualizamos el último round completado 
-            $lastCompletedRound = "ROUND $i";
+        // EXTRAEMOS LA URL DEL DOCUMENTO
+        $fileValues = $contactRoundData['value'];
+        $firstFile = reset($fileValues); 
+        
+        if (isset($firstFile['url'])) {
+            $fileUrl = $firstFile['url'];
             
-            // EXTRAEMOS LA URL DEL DOCUMENTO
-            $fileValues = $contactRoundData['value'];
-            $firstFile = reset($fileValues); 
-            
-            if (isset($firstFile['url'])) {
-                $lastCompletedRoundUrl = $firstFile['url'];
-            }
-            
-        } else {
-            
-            break; 
+            // 🚀 AÑADIMOS EL ROUND COMPLETADO AL ARRAY
+            $allCompletedRounds[] = [
+                'name' => $roundName,
+                'url' => $fileUrl,
+            ];
+
+            // Mantenemos la lógica de "último round" (si se subió el 12, este será el último guardado)
+            $lastCompletedRound = $roundName;
+            $lastCompletedRoundUrl = $fileUrl;
         }
-    }
+        
+    } 
     
+}
     
     // ====================================================================
     
@@ -156,39 +188,63 @@ public function index($id)
     $tasksData = json_decode($responseTasks, true);
     
     // 4. Obtener Datos de Crédito (SafeCreditScore)
-        // $safeCreditTestUrl = 'https://safecreditscore.com/retailermergedpull_v3.asp?customerEmail=scs923a@mailinator.com&passwordHash=cd25f0f0c93e1e2ccc1edce9a922146eb4f4624f90e4a4222ccf9f31afcdf575&type=json';
+    // $safeCreditTestUrl = 'https://safecreditscore.com/retailermergedpull_v3.asp?customerEmail=scs923a@mailinator.com&passwordHash=cd25f0f0c93e1e2ccc1edce9a922146eb4f4624f90e4a4222ccf9f31afcdf575&type=json';
 
-        // $curlSafeCredit = curl_init();
-        // curl_setopt_array($curlSafeCredit, [
-        //     CURLOPT_URL => $safeCreditTestUrl,
-        //     CURLOPT_RETURNTRANSFER => true,
-        //     CURLOPT_FOLLOWLOCATION => true, 
-        // ]);
-        
-        // $responseSafeCredit = curl_exec($curlSafeCredit);
-        // $httpCode = curl_getinfo($curlSafeCredit, CURLINFO_HTTP_CODE);
-        // curl_close($curlSafeCredit);
-        
-        
-        // if ($httpCode === 200) {
-        //     $creditData = json_decode($responseSafeCredit, true);
-        // } else {
+    // $curlSafeCredit = curl_init();
+    // curl_setopt_array($curlSafeCredit, [
+    //      CURLOPT_URL => $safeCreditTestUrl,
+    //      CURLOPT_RETURNTRANSFER => true,
+    //      CURLOPT_FOLLOWLOCATION => true, 
+    // ]);
+    
+    // $responseSafeCredit = curl_exec($curlSafeCredit);
+    // $httpCode = curl_getinfo($curlSafeCredit, CURLINFO_HTTP_CODE);
+    // curl_close($curlSafeCredit);
+    
+    // $creditData = []; 
+    // $creditScores = []; // Variable para los puntajes
+    // $cuentas = [];      // Variable para las tradelines (pasivos)
+
+    // if ($httpCode === 200) {
+    //      $creditData = json_decode($responseSafeCredit, true);
+         
+    //      // 🔑 LÓGICA CLAVE: PROCESAR EL REPORTE DE CRÉDITO 🔑
+    //      if (!isset($creditData['error']) && isset($creditData['CREDIT_RESPONSE'])) {
+    //         $response = $creditData['CREDIT_RESPONSE'];
             
-        //     $creditData = [
-        //         'error' => 'Error al llamar a la API de SafeCreditScore con datos de prueba ', 
-        //         'http_code' => $httpCode, 
-        //         'response_message' => $responseSafeCredit,
-        //     ];
-        // }
+    //         // 1. Extraer Puntajes de Crédito
+    //         if (isset($response['CREDIT_SCORE'])) {
+    //             $scores = $response['CREDIT_SCORE'];
+    //             // Aseguramos que $creditScores sea un array de scores, incluso si solo viene uno.
+    //             $creditScores = array_key_exists(0, $scores) ? $scores : [$scores];
+    //         }
+            
+    //         // 2. Extraer Cuentas (Tradelines)
+    //         if (isset($response['CREDIT_TRADE_LINE']['TRADE_LINE'])) {
+    //             $tradelines = $response['CREDIT_TRADE_LINE']['TRADE_LINE'];
+    //             // Aseguramos que $cuentas sea un array de cuentas, incluso si solo viene una.
+    //             $cuentas = array_key_exists(0, $tradelines) ? $tradelines : [$tradelines];
+    //         }
+    //      }
 
-   
+    // } else {
+    //      $creditData = [
+    //          'error' => 'Error al llamar a la API de SafeCreditScore con datos de prueba ', 
+    //          'http_code' => $httpCode, 
+    //          'response_message' => $responseSafeCredit,
+    //      ];
+    // }
+
+    
     return view('reporting.index', compact(
         'clienteData', 
         'citasData', 
         'tasksData', 
         'lastCompletedRound', 
-        'lastCompletedRoundUrl',
-        'reporteInicialUrl' 
-    )); 
+        'lastCompletedRoundUrl', 
+        'reporteInicialUrl',
+        'allCompletedRounds',
+        'commissionInvoiceUrl',
+    ));
 }
 }
